@@ -1,0 +1,162 @@
+﻿@page "/"
+
+@using System.Linq;
+
+@using WeddingApp.models;
+@using WeddingApp.Services;
+
+@inject iDBService dbService
+@inject IJSRuntime JsRuntime
+
+<img style="width:90vw;height:20vh" src="/Images/lodge.jpeg" />
+
+<h1>Craig and Pauline welcome you to our wedding on the 24th of October!</h1>
+<br />
+
+<br />
+
+@if (loaded)
+{
+    <p></p>
+    <h3>Please enter guest information below.</h3>
+    <h5>Note down any dietary requirements in the notes section. Select other if requiring vegetarian/vegan alternative.</h5>
+    <br />
+    <p></p>
+    int counter = 0;
+
+    foreach (Guest g in guests)
+    {
+        counter += 1;
+        Guest gg = g;
+        <p style="margin-bottom:0px"><strong>Guest @counter Name:</strong></p>
+        <input style="width:25%" @bind="gg.Name"></input>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Contact Number:</strong></p>
+        <input style="width:25%" @bind="gg.ContactNumber"></input>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Attending:</strong></p>
+        <select style="width:50%" @bind="gg.Attending">
+            <option></option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Age Group:</strong></p>
+        <select style="width:50%" @bind="gg.AgeGroupId">
+            <option></option>
+            @foreach (AgeGroup a in ageGroups)
+            {
+                AgeGroup aa = a;
+                <option value="@aa.IdAgeGroup">@aa.AgeGrouptext</option>
+            }
+        </select>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Starter:</strong></p>
+        <select style="width:50%" @bind="gg.StarterChoiceId">
+            <option></option>
+            @foreach (FoodChoice f in starters)
+            {
+                FoodChoice ff = f;
+                <option value="@ff.IdFoodChoice">@ff.FoodChoiceText</option>
+            }
+        </select>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Main Course:</strong></p>
+        <select style="width:50%" @bind="gg.MainChoiceId">
+            <option></option>
+            @foreach (FoodChoice f in mains)
+            {
+                FoodChoice ff = f;
+                <option value="@ff.IdFoodChoice">@ff.FoodChoiceText</option>
+            }
+        </select>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Dessert:</strong></p>
+        <select style="width:50%" @bind="gg.DessertChoiceId">
+            <option></option>
+            @foreach (FoodChoice f in desserts)
+            {
+                FoodChoice ff = f;
+                <option value="@ff.IdFoodChoice">@ff.FoodChoiceText</option>
+            }
+        </select>
+        <br />
+
+        <p style="margin-bottom:0px"><strong>Notes:</strong></p>
+        <textarea style="width:50%" @bind="gg.Notes"></textarea>
+        <br />
+
+        <p></p>
+        <p>---------------------------------------------------</p>
+    }
+    <button @onclick="AddGuest">Add Another Guest</button>
+    <br />
+    <button @onclick="RemoveGuest">Remove Guest</button>
+    <br />
+
+    <p>---------------------------------------------------</p>
+
+    <button @onclick="OnSave">Save</button>
+
+    <br />
+    <p></p>
+}
+
+@code
+{
+    IEnumerable<AgeGroup> ageGroups;
+    IEnumerable<FoodChoice> foodChoices;
+    IEnumerable<Guest> guests;
+
+    IEnumerable<FoodChoice> starters;
+    IEnumerable<FoodChoice> mains;
+    IEnumerable<FoodChoice> desserts;
+
+    bool loaded;
+
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ageGroups = dbService.GetAgeGroups();
+            foodChoices = dbService.GetFoodChoices();
+            starters = foodChoices.Where(f => f.Course == "Starter");
+            mains = foodChoices.Where(f => f.Course == "Mains");
+            desserts = foodChoices.Where(f => f.Course == "Dessert");
+            guests = new List<Guest>() { new Guest() };
+            loaded = true;
+        }
+        catch
+        {
+
+        }
+    }
+
+    private void AddGuest()
+    {
+        guests = guests.Append(new Guest());
+    }
+
+    private void RemoveGuest()
+    {
+        if (guests.Count() > 1)
+        {
+            guests = guests.SkipLast(1);
+        }
+        JsRuntime.InvokeVoidAsync("OnScrollEvent");
+    }
+
+    private void OnSave()
+    {
+        var status = dbService.PostGuest(guests);
+        Modal.Show<SavePopUp>("Response Submitted, Thank You!");
+    }
+}

@@ -1,0 +1,84 @@
+﻿@page "/GiftList"
+
+@inject IJSRuntime JsRuntime
+
+<h1>Gift List</h1>
+
+<br />
+<p></p>
+
+<h5>
+    We’ve lived together quite a while,
+</h5>
+<h5>
+    With all our pots and pans,
+</h5>
+<h5>
+    And as we don’t need homely gifts,
+</h5>
+<h5>
+    We’ve got another plan!
+</h5>
+<h5>
+    We know it’s not traditional,
+</h5>
+<h5>
+    And not the way it’s done,
+</h5>
+<h5>
+    But rather than a wedding list,
+</h5>
+<h5>
+    We’d love a bit of sun,
+</h5>
+<h5>
+    So if you’d like to give a gift,
+</h5>
+<h5>
+    And send us on our way,
+</h5>
+<h5>
+    A donation to our honeymoon,
+</h5>
+<h5>
+    Would really make our day!
+</h5>
+
+<br />
+
+<p>Next summer we are looking to travel to the Maldives for our honeymoon (giving us some time to save and restrictions to fully lift).</p>
+<p>If anyone would like to contribute to our honeymoon as a wedding gift it would be much appreciated, our bank details are below:</p>
+<br />
+<p>Account Name: Craig McLaren</p>
+<p>Account Number: 12337560</p>
+<p>Sort Code: 80-46-96</p>
+
+<br />
+<p>If you would rather provide a physical gift we have the following Amazon Wishlist (still being updated):</p>
+<p style="cursor:pointer;color:blue;text-decoration:underline" @onmousedown="() => OnLinkClick(giftList)">https://www.amazon.co.uk/hz/wishlist/ls/2VINQAKZIB1BL?ref_=wl_share</p>
+<p>Apologies link is currently not working on iPhone</p>
+<br />
+<p></p>
+
+@code {
+    private string giftList = "https://www.amazon.co.uk/hz/wishlist/ls/2VINQAKZIB1BL?ref_=wl_share";
+
+    private async void OnLinkClick(string s)
+    {
+        if (!string.IsNullOrEmpty(s))
+        {
+            try
+            {
+                await JsRuntime.InvokeAsync<object>("open", s, "_blank");
+            }
+            catch
+            {
+                Console.WriteLine("Tab opening failed");
+            }
+        }
+        else
+        {
+
+        }
+    }
+}

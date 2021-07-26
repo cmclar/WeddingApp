@@ -1,0 +1,11 @@
+﻿
+<button @onclick="CloseWindow">OK</button>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance ModalInstance { get; set; }
+
+    void CloseWindow()
+    {
+        ModalInstance.CloseAsync();
+    }
+}
